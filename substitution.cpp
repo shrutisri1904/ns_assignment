@@ -1,5 +1,5 @@
 #include<bits/stdc++.h>
-#include"subs.h"
+#include"header.h"
 
 using namespace std;
 string substitute(string x, int s[8][4][16])
