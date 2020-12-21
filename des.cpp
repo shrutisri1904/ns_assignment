@@ -1,9 +1,6 @@
 #include <bits/stdc++.h>
-
-#include"subs.h"
-
+#include "subkey_header.h"
 using namespace std;
-
 string hex2bin(string s)
 {
 	// hexadecimal to binary conversion
@@ -185,8 +182,18 @@ string encrypt(string pt, vector<string> rkb, vector<string> rk)
 
 		// S-boxes
 		string op = "";
-		op=substitute(x, s);
-		
+		for (int i = 0; i < 8; i++) {
+			int row = 2 * int(x[i * 6] - '0') + int(x[i * 6 + 5] - '0');
+			int col = 8 * int(x[i * 6 + 1] - '0') + 4 * int(x[i * 6 + 2] - '0') + 2 * int(x[i * 6 + 3] - '0') + int(x[i * 6 + 4] - '0');
+			int val = s[i][row][col];
+			op += char(val / 8 + '0');
+			val = val % 8;
+			op += char(val / 4 + '0');
+			val = val % 4;
+			op += char(val / 2 + '0');
+			val = val % 2;
+			op += char(val + '0');
+		}
 		// Straight D-box
 		op = permute(op, per, 32);
 
@@ -271,20 +278,8 @@ int main()
 
 	vector<string> rkb; // rkb for RoundKeys in binary
 	vector<string> rk; // rk for RoundKeys in hexadecimal
-	for (int i = 0; i < 16; i++) {
-		// Shifting
-		left = shift_left(left, shift_table[i]);
-		right = shift_left(right, shift_table[i]);
-
-		// Combining
-		string combine = left + right;
-
-		// Key Compression
-		string RoundKey = permute(combine, key_comp, 48);
-
-		rkb.push_back(RoundKey);
-		rk.push_back(bin2hex(RoundKey));
-	}
+	
+	subkey_gen(left,right, key_comp, shift_table, rkb,rk); //sub_key geneation for each round.
 
 	cout << "\nEncryption:\n\n";
 	string cipher = encrypt(pt, rkb, rk);
